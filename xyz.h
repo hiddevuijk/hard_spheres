@@ -71,17 +71,17 @@ XYZ operator/(const XYZ& l, const double& div);
 
 namespace xyz {
 // distance between c1 and c2
-double dist2(const XYZ &c1, const XYZ &c2);
+double dist(const XYZ &c1, const XYZ &c2);
 
-// same as dist2, but with periodic boundary conditions
-double dist2_pbc(const XYZ &c1, const XYZ &c2, double L);
+// same as dist, but with periodic boundary conditions
+double dist_pbc(const XYZ &c1, const XYZ &c2, double L);
 
 
 // returns the distance squared
-double dist2_sq(const XYZ &c1, const XYZ &c2);
+double dist_sq(const XYZ &c1, const XYZ &c2);
 
-// same as dist2_sq, but with periodic boundary conditions
-double dist2_sq_pbc(const XYZ &c1, const XYZ &c2, double L);
+// same as dist_sq, but with periodic boundary conditions
+double dist_sq_pbc(const XYZ &c1, const XYZ &c2, double L);
 
 
 

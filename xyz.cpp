@@ -105,13 +105,13 @@ XYZ operator/(const XYZ& l, const double& div)
 /////////////////////////
 
 // distance between c1 and c2
-double xyz::dist2(const XYZ &c1, const XYZ &c2)
+double xyz::dist(const XYZ &c1, const XYZ &c2)
 { return sqrt( (c1.x - c2.x)*(c1.x - c2.x) +
 			(c1.y - c2.y)*(c1.y - c2.y) +
             (c1.z - c2.z)*(c1.z - c2.z) ); }
 
-// same as dist2, but with periodic boundary conditions
-double xyz::dist2_pbc(const XYZ &c1, const XYZ &c2, double L)
+// same as dist, but with periodic boundary conditions
+double xyz::dist_pbc(const XYZ &c1, const XYZ &c2, double L)
 {
 	XYZ d( c1.x-c2.x, c1.y-c2.y, c1.z-c2.z );
 
@@ -124,14 +124,14 @@ double xyz::dist2_pbc(const XYZ &c1, const XYZ &c2, double L)
 
 
 // returns the distance squared
-double xyz::dist2_sq(const XYZ &c1, const XYZ &c2)
+double xyz::dist_sq(const XYZ &c1, const XYZ &c2)
 { return  (c1.x - c2.x)*(c1.x - c2.x) +
 		  (c1.y - c2.y)*(c1.y - c2.y) + 
 		  (c1.z - c2.z)*(c1.z - c2.z);
 }
 
-// same as dist2_sq, but with periodic boundary conditions
-double xyz::dist2_sq_pbc(const XYZ &c1, const XYZ &c2, double L)
+// same as dist_sq, but with periodic boundary conditions
+double xyz::dist_sq_pbc(const XYZ &c1, const XYZ &c2, double L)
 {
 
 	XYZ d( c1.x-c2.x, c1.y-c2.y, c1.z-c2.z );
@@ -140,7 +140,7 @@ double xyz::dist2_sq_pbc(const XYZ &c1, const XYZ &c2, double L)
 	d.y -= L*round(d.y/L);
     d.z -= L*round(d.y/L);
 
-	return d.x*d.x + d.y*d.y + d.z+d.z;
+	return d.x*d.x + d.y*d.y + d.z*d.z;
 }
 
 
