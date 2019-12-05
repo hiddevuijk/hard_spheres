@@ -101,7 +101,7 @@ void System::mc_move()
 
             // check if the Verlet list needs to be updated
             //update_verlet_list();
-            if( xyz::dist_pbc(particles[i].r, particles_before_update[i].r,L) > 0.1*(rv-potential.rco) ) update_verlet_list();
+            if( xyz::dist_pbc(particles[i].r, particles_before_update[i].r,L) > 0.5*(rv-potential.rco) ) update_verlet_list();
         } 
     }
 }

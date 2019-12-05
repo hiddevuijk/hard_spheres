@@ -1,0 +1,12 @@
+N = 4000 # number of particles
+L = 18.820720577620566
+d = 0.15
+rn = 3.5
+T_init = 100000
+T = 200000
+T_sample = 200
+multiplier = 4000
+T_print = 500
+Nbin = 10000
+seed = 123456789
+name = rho06
