@@ -119,9 +119,9 @@ void System::move_nl()
 		if( !overlap ) {
 			positions[index] = new_position;
 			++Naccepted;
-        
+            // rn - 0.5 ?????????????? 
             if( xyz::dist_pbc(positions[index],positions_before_update[index],L )
-                    > 0.5*(rn-1.) )  {
+                    > 0.5*(rn-.5)-delta )  {
                 neighbour_update();
             }
             
