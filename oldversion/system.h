@@ -11,8 +11,7 @@
 class System{
 public:
 
-	System (unsigned int  N, double L, double rhs, double deltaa, double rn, unsigned int seed);
-	System (unsigned int  N, double L, double rhs, double deltaa, double rn);
+	System (unsigned int  N, double L, double rhs, double alpha, double A, double deltaa, double rn, unsigned int seed);
 
     const boost::normal_distribution<double> ndist;
     const boost::uniform_real<double> udist;
@@ -45,6 +44,8 @@ public:
 	unsigned int N; // number of disks
 	double L;	// system size
     double rhs; // hardsphere radius
+    double alpha; // yukawa decay length
+    double A; // yukawa amplitude
      
 
 	// max step size
@@ -135,10 +136,11 @@ void System::pbc()
 		positions[i].pbc(L);
 }
 
-System::System(unsigned int NN, double LL, double rhss, double dd, double rn, unsigned int seed)
+System::System(unsigned int NN, double LL, double rhss, double alphaa, double AA,
+                 double dd, double rn, unsigned int seed)
 : ndist(0,1), udist(0,1), seed(seed), rng(seed),ridist(0,NN-1),
     rndist(rng,ndist), rudist(rng, udist),
-N(NN), L(LL), rhs(rhss), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
+N(NN), L(LL), rhs(rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
 	positions(NN), positions_before_update(NN), neighbour_index(NN,std::vector<unsigned int>(NN,0)),
 	neighbour_number(NN,0)
 {}

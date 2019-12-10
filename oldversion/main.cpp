@@ -20,6 +20,8 @@ int main()
 	unsigned int N = config.get_parameter<unsigned int>("N");
 	double L = config.get_parameter<double>("L");
     double rhs = config.get_parameter<double>("rhs");
+    double alpha = config.get_parameter<double>("alpha");
+    double A = config.get_parameter<double>("A");
     cout << N/(L*L*L) << endl;
 
 	// mc params
@@ -39,7 +41,7 @@ int main()
 	
 	PairCorrelation pc(N,L,Nbin,bs);
 
-	System system(N,L,rhs,d,rn,seed);
+	System system(N,L,rhs,alpha, A, d,rn,seed);
 	system.initialize();
 	system.neighbour_update();
 	for(unsigned int ti = 0;ti<T_init; ++ti) {
