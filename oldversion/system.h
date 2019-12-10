@@ -78,9 +78,9 @@ void System::move_nl()
         
         //system_func::xyz_random_uniform(new_position,rudist,delta);
         //new_position += positions[index];
-        new_position.x = positions[index].x + ( 1-2*rudist() )*delta;
-        new_position.y = positions[index].y + ( 1-2*rudist() )*delta;
-        new_position.z = positions[index].z + ( 1-2*rudist() )*delta;
+        new_position.x = positions[index].x + ( 0.5-rudist() )*delta;
+        new_position.y = positions[index].y + ( 0.5-rudist() )*delta;
+        new_position.z = positions[index].z + ( 0.5-rudist() )*delta;
 
 		XYZ temp;
 		overlap = false;
@@ -95,7 +95,7 @@ void System::move_nl()
 		}
 
 		if( !overlap ) {
-            // 
+            if( rudist() < exp(-beta*dU) ) {
                 positions[index] = new_position;
                 ++Naccepted;
                 // if particle moved to far, update neighbour list
@@ -103,7 +103,7 @@ void System::move_nl()
                         > 0.5*(rn-rhs)-delta )  {
                     neighbour_update();
                 }
-            
+            } 
 		}
 
 
@@ -156,9 +156,9 @@ void System::move()
 
         //system_func::xyz_random_uniform(new_position,rudist,delta);
         //new_position += positions[index];
-        new_position.x = positions[index].x + ( 1-2*rudist() )*delta;
-        new_position.y = positions[index].y + ( 1-2*rudist() )*delta;
-        new_position.z = positions[index].z + ( 1-2*rudist() )*delta;
+        new_position.x = positions[index].x + ( 0.5-rudist() )*delta;
+        new_position.y = positions[index].y + ( 0.5-rudist() )*delta;
+        new_position.z = positions[index].z + ( 0.5-rudist() )*delta;
 
 
 
