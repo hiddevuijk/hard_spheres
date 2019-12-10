@@ -1,5 +1,6 @@
-N = 1000 # number of particles
+N = 100 # number of particles
 L = 16.4414138289
+rhs = 0.5
 d = 0.75
 rn = 7
 T_init = 10000

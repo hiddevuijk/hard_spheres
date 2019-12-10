@@ -11,8 +11,8 @@
 class System{
 public:
 
-	System (unsigned int  N, double L,double deltaa, double rn, unsigned int seed);
-	System (unsigned int  N, double L,double deltaa, double rn);
+	System (unsigned int  N, double L, double rhs, double deltaa, double rn, unsigned int seed);
+	System (unsigned int  N, double L, double rhs, double deltaa, double rn);
 
     const boost::normal_distribution<double> ndist;
     const boost::uniform_real<double> udist;
@@ -44,6 +44,8 @@ public:
 	// system params
 	unsigned int N; // number of disks
 	double L;	// system size
+    double rhs; // hardsphere radius
+     
 
 	// max step size
 	double delta;
@@ -89,9 +91,9 @@ void System::move_nl()
 		if( !overlap ) {
 			positions[index] = new_position;
 			++Naccepted;
-            // rn - 0.5 ?????????????? 
+            // if particle moved to far, update neighbour list
             if( xyz::dist_pbc(positions[index],positions_before_update[index],L )
-                    > 0.5*(rn-.5)-delta )  {
+                    > 0.5*(rn-rhs)-delta )  {
                 neighbour_update();
             }
             
@@ -133,10 +135,10 @@ void System::pbc()
 		positions[i].pbc(L);
 }
 
-System::System(unsigned int NN, double LL, double dd, double rn, unsigned int seed)
+System::System(unsigned int NN, double LL, double rhss, double dd, double rn, unsigned int seed)
 : ndist(0,1), udist(0,1), seed(seed), rng(seed),ridist(0,NN-1),
     rndist(rng,ndist), rudist(rng, udist),
-N(NN), L(LL), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
+N(NN), L(LL), rhs(rhss), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
 	positions(NN), positions_before_update(NN), neighbour_index(NN,std::vector<unsigned int>(NN,0)),
 	neighbour_number(NN,0)
 {}
