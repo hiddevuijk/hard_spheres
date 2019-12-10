@@ -7,40 +7,11 @@
 #include <boost/random.hpp>
 
 #include "xyz.h"
-#include "randuni.h"
-
-namespace system_func {
-template<class RNDIST>
-inline void xyz_random_normal(XYZ &r, RNDIST &rndist) {
-    r.x = rndist();
-    r.y = rndist();
-    r.z = rndist();
-}
-template<class RNDIST>
-inline void xyz_random_normal(XYZ &r, RNDIST &rndist, double delta) {
-    r.x = rndist()*delta;
-    r.y = rndist()*delta;
-    r.z = rndist()*delta;
-}
-template<class RUDIST>
-inline void xyz_random_uniform(XYZ &r, RUDIST &rudist) {
-    r.x = rudist();
-    r.y = rudist();
-    r.z = rudist();
-}
-template<class RUDIST>
-inline void xyz_random_uniform(XYZ &r, RUDIST &rudist, double delta) {
-    r.x = (0.5-rudist())*2*delta;
-    r.y = (0.5-rudist())*2*delta;
-    r.z = (0.5-rudist())*2*delta;
-}
-};
 
 class System{
 public:
 
 	System (unsigned int  N, double L,double deltaa, double rn, unsigned int seed);
-
 	System (unsigned int  N, double L,double deltaa, double rn);
 
     const boost::normal_distribution<double> ndist;
@@ -95,15 +66,14 @@ public:
 
 void System::move_nl() 
 {
-		//index = rand()%positions.size();	
         index = ridist(rng);
 
         
-        system_func::xyz_random_uniform(new_position,rudist,delta);
-        new_position += positions[index];
-		//new_position.x = positions[index].x + (0.5 - randuni() )*2*delta;
-		//new_position.y = positions[index].y + (0.5 - randuni() )*2*delta;
-		//new_position.z = positions[index].z + (0.5 - randuni() )*2*delta;
+        //system_func::xyz_random_uniform(new_position,rudist,delta);
+        //new_position += positions[index];
+        new_position.x = positions[index].x + ( 1-2*rudist() )*delta;
+        new_position.y = positions[index].y + ( 1-2*rudist() )*delta;
+        new_position.z = positions[index].z + ( 1-2*rudist() )*delta;
 
 		XYZ temp;
 		overlap = false;
@@ -173,11 +143,14 @@ N(NN), L(LL), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
 
 void System::move() 
 {
-		index = rand()%positions.size();	
 
-		new_position.x = positions[index].x + (0.5 - randuni() )*2*delta;
-		new_position.y = positions[index].y + (0.5 - randuni() )*2*delta;
-		new_position.z = positions[index].z + (0.5 - randuni() )*2*delta;
+        //system_func::xyz_random_uniform(new_position,rudist,delta);
+        //new_position += positions[index];
+        new_position.x = positions[index].x + ( 1-2*rudist() )*delta;
+        new_position.y = positions[index].y + ( 1-2*rudist() )*delta;
+        new_position.z = positions[index].z + ( 1-2*rudist() )*delta;
+
+
 
 		overlap = false;	
 		for(unsigned int i=0;i<positions.size(); ++i) {

@@ -1,5 +1,5 @@
 TARGET = test.exe
-OBJS = main.o pair_correlation.o xyz.o randuni.o  configFile.o
+OBJS = main.o pair_correlation.o xyz.o configFile.o
 CC = g++
 #CFLAGS = -c -Wall -g
 #LFLAGS = -Wall -g
@@ -21,8 +21,6 @@ xyz.o: xyz.cpp xyz.h
 configFile.o: configFile.cpp configFile.h
 	$(CC) $(CFLAGS) configFile.cpp
 
-randuni.o: randuni.cpp randuni.h
-	$(CC) $(CFLAGS) randuni.cpp
 
 
 .PHONY: clean
