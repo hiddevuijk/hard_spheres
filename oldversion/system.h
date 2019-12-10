@@ -31,6 +31,12 @@ public:
 	void move_nl();
 	void initialize();
 
+    double U(const XYZ& r1, const XYZ& r2)
+    {    double dist = xyz::dist_pbc(r1,r2,L);
+         return -A*exp( -alpha*(dist-dhs)/dist );
+    }
+    double U(double r) { return -A*exp(-alpha*(r-dhs)/r); }
+
 	int get_Naccepted() const {return Naccepted;}
 	int get_Nmoves() const {return Nmoves;}
 	int get_fraction_accepted_moves() const 
@@ -47,6 +53,7 @@ public:
 	double L;	// system size
     double beta; // 1/temperature
     double rhs; // hardsphere radius
+    double dhs; // hardsphere diameter = 2*rhs
     double alpha; // yukawa decay length
     double A; // yukawa amplitude
      
@@ -74,10 +81,7 @@ public:
 void System::move_nl() 
 {
         index = ridist(rng);
-
         
-        //system_func::xyz_random_uniform(new_position,rudist,delta);
-        //new_position += positions[index];
         new_position.x = positions[index].x + ( 0.5-rudist() )*delta;
         new_position.y = positions[index].y + ( 0.5-rudist() )*delta;
         new_position.z = positions[index].z + ( 0.5-rudist() )*delta;
@@ -87,11 +91,14 @@ void System::move_nl()
         dU = 0;
 		for(unsigned int i=0;i<neighbour_number[index];++i) {
 			temp = positions[neighbour_index[index][i] ];
-
-			if(xyz::dist_sq_pbc(new_position,temp,L) < 1. ){
+            double old_dist = xyz::dist_pbc(positions[index], temp,L);     
+            double new_dist = xyz::dist_pbc(new_position, temp,L);     
+			if( new_dist < dhs ){
 				overlap = true;
 				break;
 			}
+            dU += U(new_dist);
+            dU -= U(old_dist);
 		}
 
 		if( !overlap ) {
@@ -146,7 +153,7 @@ System::System(unsigned int NN, double LL, double betaa, double rhss, double alp
                  double dd, double rn, unsigned int seed)
 : ndist(0,1), udist(0,1), seed(seed), rng(seed),ridist(0,NN-1),
     rndist(rng,ndist), rudist(rng, udist),
-N(NN), L(LL), beta(betaa), rhs(rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
+N(NN), L(LL), beta(betaa), rhs(rhss), dhs(2*rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
 	positions(NN), positions_before_update(NN), neighbour_index(NN,std::vector<unsigned int>(NN,0)),
 	neighbour_number(NN,0)
 {}
@@ -154,6 +161,7 @@ N(NN), L(LL), beta(betaa), rhs(rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), N
 void System::move() 
 {
 
+        index = ridist(rng);
         //system_func::xyz_random_uniform(new_position,rudist,delta);
         //new_position += positions[index];
         new_position.x = positions[index].x + ( 0.5-rudist() )*delta;
@@ -165,7 +173,7 @@ void System::move()
 		overlap = false;	
 		for(unsigned int i=0;i<positions.size(); ++i) {
 			if(i != index and 
-				xyz::dist_sq_pbc(new_position,positions[i],L) < 1.) {
+				xyz::dist_sq_pbc(new_position,positions[i],L) < 2*rhs) {
 					overlap = true;
 			}
 			if(overlap) break;

@@ -43,6 +43,7 @@ void PairCorrelation::normalize()
 	double rhob = N/(L*L*L);
   
 	for(unsigned int i=0;i<Nbin;++i ) {
+        //double vb = ( (i+1)*(i+1)*(i+1) - i*i*i) * bs*bs*bs;
         double vb = ( (i+1)*(i+1)*(i+1) - i*i*i) * bs*bs*bs;
 		//Nid = 2*pi*bs*bins[i]*rhob;
         Nid = (4./3.)*pi*vb*rhob;
