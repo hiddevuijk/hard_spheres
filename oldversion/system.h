@@ -11,7 +11,9 @@
 class System{
 public:
 
-	System (unsigned int  N, double L, double rhs, double alpha, double A, double deltaa, double rn, unsigned int seed);
+	System (unsigned int  N, double L,double beta, double rhs, 
+            double alpha, double A, double deltaa, double rn,
+             unsigned int seed);
 
     const boost::normal_distribution<double> ndist;
     const boost::uniform_real<double> udist;
@@ -43,6 +45,7 @@ public:
 	// system params
 	unsigned int N; // number of disks
 	double L;	// system size
+    double beta; // 1/temperature
     double rhs; // hardsphere radius
     double alpha; // yukawa decay length
     double A; // yukawa amplitude
@@ -65,6 +68,7 @@ public:
 	// index of trial disk
 	unsigned int index;	
 	bool overlap;
+    double dU; 
 };
 
 void System::move_nl() 
@@ -80,6 +84,7 @@ void System::move_nl()
 
 		XYZ temp;
 		overlap = false;
+        dU = 0;
 		for(unsigned int i=0;i<neighbour_number[index];++i) {
 			temp = positions[neighbour_index[index][i] ];
 
@@ -90,13 +95,14 @@ void System::move_nl()
 		}
 
 		if( !overlap ) {
-			positions[index] = new_position;
-			++Naccepted;
-            // if particle moved to far, update neighbour list
-            if( xyz::dist_pbc(positions[index],positions_before_update[index],L )
-                    > 0.5*(rn-rhs)-delta )  {
-                neighbour_update();
-            }
+            // 
+                positions[index] = new_position;
+                ++Naccepted;
+                // if particle moved to far, update neighbour list
+                if( xyz::dist_pbc(positions[index],positions_before_update[index],L )
+                        > 0.5*(rn-rhs)-delta )  {
+                    neighbour_update();
+                }
             
 		}
 
@@ -136,11 +142,11 @@ void System::pbc()
 		positions[i].pbc(L);
 }
 
-System::System(unsigned int NN, double LL, double rhss, double alphaa, double AA,
+System::System(unsigned int NN, double LL, double betaa, double rhss, double alphaa, double AA,
                  double dd, double rn, unsigned int seed)
 : ndist(0,1), udist(0,1), seed(seed), rng(seed),ridist(0,NN-1),
     rndist(rng,ndist), rudist(rng, udist),
-N(NN), L(LL), rhs(rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
+N(NN), L(LL), beta(betaa), rhs(rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
 	positions(NN), positions_before_update(NN), neighbour_index(NN,std::vector<unsigned int>(NN,0)),
 	neighbour_number(NN,0)
 {}

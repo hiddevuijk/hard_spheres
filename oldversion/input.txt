@@ -1,5 +1,6 @@
 N = 100 # number of particles
 L = 16.4414138289
+beta = 1.
 rhs = 0.5
 alpha = 1.
 A = 1.
