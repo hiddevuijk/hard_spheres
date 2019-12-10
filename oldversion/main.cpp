@@ -42,37 +42,40 @@ int main()
 	system.initialize();
 	system.neighbour_update();
 	for(unsigned int ti = 0;ti<T_init; ++ti) {
+        // print status
 		if( (ti%T_print) ==0){
 			cout << (T_init+T) << '\t' << ti << endl;
 			cout << ( (double) system.get_Naccepted() ) /
-			( (double) system.get_Nmoves() ) << endl;
-
+                    ( (double) system.get_Nmoves() ) << endl;
 			cout << endl;
 		}
+
+        // make moves
 		for( unsigned int tti=0;tti<t_unit;++tti)  
 			system.move_nl();
 
 	}	
     
 	for(unsigned int ti = 0;ti<T; ++ti) {
+        // print status
 		if( (ti%T_print) ==0) {
 			cout << (T_init+T) << '\t' << ti+T_init << endl;
 			cout << ( (double) system.get_Naccepted() ) /
-			( (double) system.get_Nmoves() ) << endl;
-
+                    ( (double) system.get_Nmoves() ) << endl;
 			cout << endl;
 		}
 
-		for(unsigned int tti=0;tti<t_unit;++tti) {
+        // make moves
+		for(unsigned int tti=0;tti<t_unit;++tti)
 			system.move_nl();
-        }
 
 		//sample pair correlation
-		if(  (ti%T_sample) == 0 ) {
+		if(  (ti%T_sample) == 0 )
 			pc.sample(system.get_positions());
-		}
 
 	}
+
+    // print fraction of accepted moves
 	cout << ( (double) system.get_Naccepted() ) /
 			( (double) system.get_Nmoves() ) << endl;
 
@@ -83,20 +86,6 @@ int main()
 	pc.write(name+"_pc.dat");	
 
 
-	//system.pbc();
-
-
-	//ofstream xyout;
-	//xyout.open("config.dat");
-
-	//// write x y values
-	//for(unsigned int i=0;i<N;++i) { 
-	//	xyout << system.get_positions()[i].x << ' ';
-	//	xyout << system.get_positions()[i].y ;
-	//	if(i<N-1) xyout << '\n';
-	//}
-	//
-	//xyout.close();
 	return 0;
 }
 
