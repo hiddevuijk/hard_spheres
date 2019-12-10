@@ -50,7 +50,7 @@ int main()
 			cout << endl;
 		}
 
-        // make moves
+        // make moves using neighbour list
 		for( unsigned int tti=0;tti<t_unit;++tti)  
 			system.move_nl();
 
@@ -65,7 +65,7 @@ int main()
 			cout << endl;
 		}
 
-        // make moves
+        // make moves using neighbour list
 		for(unsigned int tti=0;tti<t_unit;++tti)
 			system.move_nl();
 
