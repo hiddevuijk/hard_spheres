@@ -194,7 +194,8 @@ void System::initialize()
 	unsigned int temp;
 	unsigned int j;
 	for(unsigned int i=0;i<indices.size()-1;++i ) {
-		j = i + ( rand() % (indices.size() - i) );
+		//j = i + ( rand() % (indices.size() - i) );
+        j = i + (int) ( rudist()*( indices.size() - i ) );
 		temp = indices[i];
 		indices[i] = indices[j];
 		indices[j] = temp;
