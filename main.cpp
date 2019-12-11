@@ -44,7 +44,10 @@ int main()
 
     for(int t=0; t<T_init; ++t) {
 
-        if(t%print_every == 0) cout << t << endl;
+        if(t%print_every == 0) {
+            cout <<T+T_init << '\t' <<  t << endl;
+            cout << system.Nacc/( (double) system.Ntry ) << endl << endl;
+        }
 
         for(int tmc=0; tmc<Tmc; ++tmc) {
             //system.mc_move();
@@ -55,7 +58,10 @@ int main()
     
     for(int t=0; t<T; ++t) {
 
-        if(t%print_every == 0) cout << t << endl;
+        if(t%print_every == 0) {
+            cout <<T+T_init << '\t' <<  t+T_init << endl;
+            cout << system.Nacc/( (double) system.Ntry ) << endl << endl;
+        }
 
         for(int tmc=0; tmc<Tmc; ++tmc) {
             //system.mc_move();
