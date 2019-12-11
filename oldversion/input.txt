@@ -1,16 +1,21 @@
-N = 2000 # number of particles
-L = 20.
-beta = 0.001
+N = 500 # number of particles
+L = 10.
+
+beta = 1.
 rhs = 0.5
 alpha = 1.
 A = 0.
-d = 1.25
-rn = 7
-T_init = 10000
-T = 100000
+
+d = .05
+rn = 1.5
+T_init = 100000
+T = 100
 T_sample = 100
 multiplier = 100
-T_print = 5000
+T_print = 100
+
 Nbin = 10000
+
 seed = 123456111
+
 name = rho09

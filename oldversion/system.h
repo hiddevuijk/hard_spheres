@@ -46,6 +46,10 @@ public:
 
 	void pbc();
 	void neighbour_update();
+	void neighbour_update_cell();
+    void add_neighbour(int ni, int nj);
+
+    bool check_overlap();
 //private:
 
 	// system params
@@ -60,6 +64,7 @@ public:
 
 	// max step size
 	double delta;
+    double max_step;
 	double rn;
 	unsigned int Nmoves;
 	unsigned int Naccepted;	
@@ -104,11 +109,14 @@ void System::move_nl()
 		if( !overlap ) {
             if( rudist() < exp(-beta*dU) ) {
                 positions[index] = new_position;
+                positions[index].pbc(L);
                 ++Naccepted;
                 // if particle moved to far, update neighbour list
-                if( xyz::dist_pbc(positions[index],positions_before_update[index],L )
-                        > 0.5*(rn-rhs)-delta )  {
-                    neighbour_update();
+                double max = 0.5*(rn-rhs-max_step);
+                double dist = xyz::dist_pbc(positions[index],positions_before_update[index],L ) ;
+                if( dist > max)  {
+                    //neighbour_update();
+                    neighbour_update_cell();
                 }
             } 
 		}
@@ -124,12 +132,13 @@ void System::neighbour_update()
 			neighbour_number.end(),0);
 	for(unsigned int i=0;i<N;++i) {
 		for(unsigned int j=i+1;j<N;++j) {
+            //add_neighbour(i,j);
 			dist_sq = xyz::dist_sq_pbc(positions[i],positions[j],L);
 			if(dist_sq < 1){ std::cerr<< "FUCK \n";
                 std::cerr << dist_sq << '\n';
                 std::cerr << Nmoves << '\n';
             }
-            assert(!(dist_sq<1));
+            assert( !( dist_sq < dhs*dhs ) );
 			if(dist_sq < rn*rn) {
 				neighbour_index[i][ neighbour_number[i] ] = j;
 				neighbour_index[j][ neighbour_number[j] ] = i;
@@ -143,6 +152,313 @@ void System::neighbour_update()
         positions_before_update[i] = positions[i];
 }
 
+class CellIndex {
+public:
+    int i,j,k;
+};
+
+void System::neighbour_update_cell()
+{
+
+	std::fill(neighbour_number.begin(),
+			neighbour_number.end(),0);
+
+    int n = 1;
+    while( L/n > rn ) n++;
+    --n;
+    double l = L/n;
+    
+   
+    int nmaxincell = N;
+    std::vector<CellIndex> cell_indices(N);
+    std::vector<std::vector<std::vector<std::vector<int> > > > particle_index_in_cell(n,
+                        std::vector<std::vector<std::vector<int> > >(n,
+                            std::vector<std::vector<int> >(n,
+                                std::vector<int>(nmaxincell) ) ) );
+    std::vector<std::vector<std::vector<int> > > n_particle_in_cell(n,
+                        std::vector<std::vector<int> >(n,
+                            std::vector<int>(n,0) ) );
+    int i,j,k;
+    for(unsigned int ni=0; ni<N; ++ni) {
+        positions[ni].pbc(L);
+        i = (int) (positions[ni].x/l);
+        j = (int) (positions[ni].y/l);
+        k = (int) (positions[ni].z/l);
+        cell_indices[ni].i = i;
+        cell_indices[ni].j = j;
+        cell_indices[ni].k = k;
+
+        unsigned int ncell = n_particle_in_cell[i][j][k];
+        n_particle_in_cell[i][j][k]++;
+        particle_index_in_cell[i][j][k][ncell]  = ni;
+    }
+    
+    int i_pbc, j_pbc, k_pbc;
+    unsigned int ncell;
+    int nk;
+    for(unsigned int ni=0;ni<N;++ni) {
+        i = (int) (positions[ni].x/l);
+        j = (int) (positions[ni].y/l);
+        k = (int) (positions[ni].z/l);
+       
+        // this cell (0,0,0)
+        i_pbc = i; 
+        j_pbc = j; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+            nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           if( ni==nk ) continue;
+           add_neighbour(ni,nk);
+        }
+
+        //  cell (0,1,0)
+        i_pbc = i; 
+        j_pbc = (j+1)%n; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (0,0,1)
+        i_pbc = i; 
+        j_pbc = j; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (0,1,1)
+        i_pbc = i; 
+        j_pbc = (j+1)%n; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (0,-1,0)
+        i_pbc = i; 
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (0,0,-1)
+        i_pbc = i; 
+        j_pbc = j;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (0,-1,-1)
+        i_pbc = i; 
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        // right cell (1,0,0)
+        i_pbc = (i+1)%n;
+        j_pbc = j; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,1,0)
+        i_pbc = (i+1)%n;
+        j_pbc = (j+1)%n; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,0,1)
+        i_pbc = (i+1)%n;
+        j_pbc = j; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,1,1)
+        i_pbc = (i+1)%n;
+        j_pbc = (j+1)%n; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,-1,0)
+        i_pbc = (i+1)%n;
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,0,-1)
+        i_pbc = (i+1)%n;
+        j_pbc = j;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (1,-1,-1)
+        i_pbc = (i+1)%n;
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        // right cell (-1,0,0)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = j; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,1,0)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = (j+1)%n; 
+        k_pbc = k; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,0,1)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = j; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,1,1)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = (j+1)%n; 
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,-1,0)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = (k+1)%n; 
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,0,-1)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = j;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+        //  cell (-1,-1,-1)
+        i_pbc = i>0 ? i-1 : n-1;
+        j_pbc = j>0 ? j-1 : n-1;
+        k_pbc = k>0 ? k-1 : n-1;
+
+        ncell = n_particle_in_cell[i_pbc][j_pbc][k_pbc];
+        for(unsigned int nj=0; nj<ncell; ++nj) {
+           nk = particle_index_in_cell[i_pbc][j_pbc][k_pbc][nj];
+           add_neighbour(ni,nk); 
+        }
+
+
+
+	}
+
+
+
+    for(unsigned int i=0;i<N;++i)
+        positions_before_update[i] = positions[i];
+
+}
+void System::add_neighbour(int ni, int nj)
+{ 
+    double dist_sq = xyz::dist_sq_pbc(positions[ni],positions[nj],L);
+    if(dist_sq < 1){ std::cerr<< "FUCK \n";
+        std::cerr << dist_sq << '\n';
+        std::cerr << Nmoves << '\n';
+    }
+    assert(!(dist_sq<1));
+    if(dist_sq < rn*rn) {
+        neighbour_index[ni][ neighbour_number[ni] ] = nj;
+        neighbour_index[nj][ neighbour_number[nj] ] = ni;
+        ++neighbour_number[ni];
+        ++neighbour_number[nj];
+    }
+}
+
 void System::pbc()
 {
 	for(unsigned int i=0;i<N;++i)
@@ -153,7 +469,8 @@ System::System(unsigned int NN, double LL, double betaa, double rhss, double alp
                  double dd, double rn, unsigned int seed)
 : ndist(0,1), udist(0,1), seed(seed), rng(seed),ridist(0,NN-1),
     rndist(rng,ndist), rudist(rng, udist),
-N(NN), L(LL), beta(betaa), rhs(rhss), dhs(2*rhss), alpha(alphaa), A(AA), delta(dd), rn(rn), Nmoves(0), Naccepted(0),
+N(NN), L(LL), beta(betaa), rhs(rhss), dhs(2*rhss), alpha(alphaa), A(AA), delta(dd), max_step(sqrt(3*dd*dd) ),
+         rn(rn), Nmoves(0), Naccepted(0),
 	positions(NN), positions_before_update(NN), neighbour_index(NN,std::vector<unsigned int>(NN,0)),
 	neighbour_number(NN,0)
 {}
@@ -223,6 +540,25 @@ void System::initialize()
 		positions[i] = vertices[indices[i]];
         positions_before_update[i] = positions[i];
 	}
+
+
+}
+
+
+
+
+bool System::check_overlap()
+{
+    double dist;
+    for(int ni=0;ni<N;++ni) {
+        for(int nj=ni+1;nj<N; ++nj) {
+            dist =  xyz::dist_pbc(positions[ni], positions[nj], L);
+            if(dist < dhs )
+                return true;
+        }
+    }
+    return false;
+
 
 
 }

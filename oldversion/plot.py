@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from sys import exit
 
 rho = 0.25
+L = 20.
+rho = 4500/(L**3)
 def g1(rho):
     eta = np.pi*rho/6
     return (1+0.5*eta)/((1-eta)**2)

@@ -45,6 +45,8 @@ int main()
 	System system(N,L,beta,rhs,alpha, A, d,rn,seed);
 	system.initialize();
 	system.neighbour_update();
+    
+   
 	for(unsigned int ti = 0;ti<T_init; ++ti) {
         // print status
 		if( (ti%T_print) ==0){
