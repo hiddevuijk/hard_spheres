@@ -1,27 +1,39 @@
-#ifndef GUARD_POTENTIAL
-#define GUARD_POTENTIAL
+#ifndef GUARD_POTENTIAL_H
+#define GUARD_POTENTIAL_H
 
 #include "xyz.h"
 
 class Potential {
 public:
-    Potential( double rhs, double rco, double beta)
-        : rhs(rhs), dhs(2*rhs), dhs_sq(4*rhs*rhs),
-          rhs_sq(rhs*rhs), rco(rco), beta(beta)
-        {}
+    Potential(double A, double alpha,  double rhs, double rco)
+        : A(A), alpha(alpha), rhs(rhs), dhs(2*rhs), dhs_sq(4*rhs*rhs),
+          rhs_sq(rhs*rhs), rco(rco) {}
 
-    
-    double U( const XYZ& r1, const XYZ& r2, double L) { return 0;}
-    bool get_overlap(const XYZ& r1, const XYZ& r2, double L) ;
 
-    double rhs,dhs, dhs_sq, rhs_sq, rco, beta;
+    // Yukawa potiential    
+    double U( double  r) { 
+            if( r < rco ) {
+                return -A*exp( -alpha*(r-rhs) )/r; 
+            } else {
+                return 0;
+            }
+    }
+
+    double U( const XYZ& r1, const XYZ& r2, double L) { 
+            double r = xyz::dist_pbc(r1,r2,L);
+            return U(r);
+    }
+
+    bool get_overlap(const XYZ& r1, const XYZ& r2, double L)
+        { return xyz::dist_sq_pbc(r1, r2, L) < dhs_sq; }
+
+    bool get_overlap(double r) { return r < dhs; }
+
+    double A, alpha;
+    double rhs,dhs, dhs_sq, rhs_sq, rco;
 };
 
 
-bool Potential::get_overlap(const XYZ& r1, const XYZ& r2, double L)
-{
-    if( xyz::dist_sq_pbc(r1,r2,L) < dhs_sq ) return true;
-    else return false;
-}
+
 
 #endif

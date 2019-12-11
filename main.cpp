@@ -1,67 +1,69 @@
 
 #include "xyz.h"
-#include "system.h"
-#include "potential.h"
 #include "pair_correlation.h"
+#include "potential.h"
+#include "system.h"
 
 #include <vector>
 #include <iostream>
 
 using namespace std;
 
-int check_overlap(const vector<Particle>& particles, double rhs, Potential p, double L)
-{
-    int N = particles.size();
-    int n = 0;
-    for( int i=0;i<N;++i) {
-        for(int j=i+1; j<N; ++j) {
-            if( p.get_overlap(particles[i].r, particles[j].r,L) ) {
-                ++n;
-                cout << particles[i].r << endl;
-                cout << particles[j].r << endl;
-                cout << xyz::dist_sq_pbc(particles[i].r, particles[j].r,L) - 4*rhs*rhs << endl;
-                cout << endl;
-            }
-        
-        }
-    }
-    return n;
-}
-
 int main()
 {
 
-    int T = 50;
-    int T_sample = 10;
+    int T = 50000;
+    int T_init = 20000;
+    int T_sample = 1;
+    int Tmc = 1000;
+    int print_every = 50;
+
     int seed = 123456789;
-    int N = 1000;
-    double L = 16.666667;
-    double d = 0.5;
-    cout << "rho " << 1.*N/(1.*L*L*L) << endl;
+    int N = 500;
+    double L = 20.;
+    double d = 0.1;
 
     double rhs = .5;
-    double rc = 1.2;
-    double beta = 1.;
-    double rv = 5.;
+    double rc = 3.;
+    double A = 0.;
+    double alpha = 0;
+    double rv = 5;
 
-    int Nbin = 100;
+    int Nbin = 500;
     double bs = (1.*L)/(1.*Nbin);
+
 	PairCorrelation pc(N,L,Nbin,bs);
-    Potential potential(rhs, rc, beta);
-    System system(potential, N, L, d, rv, seed);
+    Potential potential(A,alpha, rhs, rc);
+    System system(seed, N, L,potential, d, rv);
 
-    for(int t=0; t<T; ++t) {
-        cout << t << endl;
-        for(int tmc=0; tmc<N; ++tmc) {
-            system.mc_move();
-            //check_overlap(system.particles, rhs, potential, L);
+
+    for(int t=0; t<T_init; ++t) {
+
+        if(t%print_every == 0) cout << t << endl;
+
+        for(int tmc=0; tmc<Tmc; ++tmc) {
+            //system.mc_move();
+            system.mc_move_verlet();
         }
-        pc.sample(system.particles);
     }
+    
+    
+    for(int t=0; t<T; ++t) {
 
-    cout << check_overlap(system.particles, rhs, potential, L) << endl;
-    cout <<  1.*system.Nacc/system.Ntry << endl;
-    cout << 1.*system.Nverl/system.Ntry << endl;
+        if(t%print_every == 0) cout << t << endl;
+
+        for(int tmc=0; tmc<Tmc; ++tmc) {
+            //system.mc_move();
+            system.mc_move_verlet();
+        }
+
+        if( t%T_sample == 0)
+            pc.sample(system.particles);
+    }
+    cout <<( (double) system.Nacc)/( (double) system.Ntry) << endl;
+
+    cout << system.Nverlet << endl;
+
     pc.normalize();
     pc.write("gr.dat");
 

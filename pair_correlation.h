@@ -31,6 +31,7 @@ public:
 	// write to file called outname
 	void write(std::string outname);
 private:
+
 	unsigned int N;	// number of particles
 	double L;		// box size. Use pbc if L>0,
 					// if L<=0 don't use pbc.

@@ -117,7 +117,7 @@ double xyz::dist_pbc(const XYZ &c1, const XYZ &c2, double L)
 
 	d.x -= L*round(d.x/L);
 	d.y -= L*round(d.y/L);
-    d.z -= L*round(d.y/L);
+    d.z -= L*round(d.z/L);
 
 	return sqrt(d.x*d.x + d.y*d.y + d.z*d.z);
 }
@@ -138,7 +138,7 @@ double xyz::dist_sq_pbc(const XYZ &c1, const XYZ &c2, double L)
 
 	d.x -= L*round(d.x/L);
 	d.y -= L*round(d.y/L);
-    d.z -= L*round(d.y/L);
+    d.z -= L*round(d.z/L);
 
 	return d.x*d.x + d.y*d.y + d.z*d.z;
 }
