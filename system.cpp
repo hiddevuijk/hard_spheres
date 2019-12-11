@@ -81,10 +81,8 @@ void System::mc_move_verlet()
             Nacc += 1;
 
             // check if the Verlet list needs to be updated
-            double max_step =  sqrt( 3*d*d);
-            double max = 0.5*(rv-potential.rhs)- max_step;
             double dist = xyz::dist_pbc( particles[i].r, particles_before_update[i].r, L);
-            if( dist > max ) {
+            if( dist > max_diff ) {
                 update_verlet_list();
             }
         } 
@@ -102,6 +100,8 @@ System::System(int seed, unsigned int N, double L, Potential potential, double d
     Ntry = 0;
     Nacc = 0;
     Nverlet = 0;
+
+    max_diff = 0.5*(rv - potential.rco) - sqrt(3.*d*d);
 
     // initialize the particle on a square
     init_random();

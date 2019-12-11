@@ -52,6 +52,9 @@ public:
     std::vector<unsigned int> neighbour_number_list;
 
 
+    double max_diff; // maximum distance moved before update
+                     // of the Verlet list
+
     long int Ntry; // number of attempted moves
     long int Nacc;  // number of accepted moves
     long int Nverlet; // number of verlet list updates

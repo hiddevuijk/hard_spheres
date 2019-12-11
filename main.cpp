@@ -3,6 +3,8 @@
 #include "pair_correlation.h"
 #include "potential.h"
 #include "system.h"
+#include "configFile.h"
+
 
 #include <vector>
 #include <iostream>
@@ -12,24 +14,27 @@ using namespace std;
 int main()
 {
 
-    int T = 50000;
-    int T_init = 20000;
-    int T_sample = 1;
-    int Tmc = 1000;
-    int print_every = 50;
+	Config config("input.txt");
 
-    int seed = 123456789;
-    int N = 500;
-    double L = 20.;
-    double d = 0.1;
+    int T = config.get_parameter<int>("T");
+    int T_init = config.get_parameter<int>("T_init");
+    int T_sample = config.get_parameter<int>("T_sample");
+    int Tmc = config.get_parameter<int>("Tmc");
+    int print_every = config.get_parameter<int>("print_every");
 
-    double rhs = .5;
-    double rc = 3.;
-    double A = 0.;
-    double alpha = 0;
-    double rv = 5;
+    int seed = config.get_parameter<int>("seed");
+    int N = config.get_parameter<int>("N");
+    double L = config.get_parameter<double>("L");
+    double d = config.get_parameter<double>("d");
 
-    int Nbin = 500;
+    double rhs = config.get_parameter<double>("rhs");
+    double rc = config.get_parameter<double>("rc");
+    double A = config.get_parameter<double>("A");
+    double alpha = config.get_parameter<double>("alpha");
+    double rv = config.get_parameter<double>("rv");
+
+    int Nbin = config.get_parameter<int>("Nbin");
+
     double bs = (1.*L)/(1.*Nbin);
 
 	PairCorrelation pc(N,L,Nbin,bs);
@@ -63,6 +68,7 @@ int main()
     cout <<( (double) system.Nacc)/( (double) system.Ntry) << endl;
 
     cout << system.Nverlet << endl;
+    cout << system.Nacc/( (double) system.Ntry ) << endl;
 
     pc.normalize();
     pc.write("gr.dat");

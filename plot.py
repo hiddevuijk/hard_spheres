@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sys import exit
 
-N = 500
+N = 1000
 L = 20.
 rho = N/(L**3)
 

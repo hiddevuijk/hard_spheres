@@ -1,5 +1,5 @@
 TARGET = test.exe
-OBJS = main.o pair_correlation.o xyz.o system.o
+OBJS = main.o pair_correlation.o xyz.o system.o configFile.o
 CC = g++
 #lCFLAGS = -c -Wall -g -std=c++11
 #lLFLAGS = -Wall -g
@@ -21,6 +21,8 @@ xyz.o: xyz.cpp xyz.h
 system.o: system.cpp system.h 
 	$(CC) $(CFLAGS) system.cpp
 
+configFile.o: configFile.cpp configFile.h
+	$(CC) $(CFLAGS) configFile.cpp
 
 
 .PHONY: clean
