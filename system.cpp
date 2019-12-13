@@ -73,6 +73,7 @@ void System::mc_move_verlet()
     }
 
     if( !overlap ) {
+
         if( deltaU < 0 ) { 
             particles[i].r = new_position;
 
@@ -85,6 +86,7 @@ void System::mc_move_verlet()
             if( dist > max_diff ) {
                 update_verlet_list();
             }
+
         } else if( rudist01() < std::exp( -deltaU ) ) {
             particles[i].r = new_position;
 

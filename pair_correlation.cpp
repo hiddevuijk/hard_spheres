@@ -26,7 +26,8 @@ void PairCorrelation::sample( const std::vector<Particle> &particles )
 
 	for(unsigned int i=0;i<N;++i) {
 		for(unsigned int j=i+1;j<N;++j) {
-			d = xyz::dist_pbc(particles[i].r,particles[j].r,L);
+			//d = xyz::dist_pbc(particles[i].r,particles[j].r,L);
+			d = xyz::dist_pbc(particles[i].r,particles[j].r,L) - 1;
 			if(d< 1.*L) pc[ (int)(d/bs) ] += 2.;
 		}
 	}
@@ -43,7 +44,8 @@ void PairCorrelation::normalize()
 	double rhob = N/(L*L*L);
   
 	for(unsigned int i=0;i<Nbin;++i ) {
-        double vb = ( (i+1)*(i+1)*(i+1) - i*i*i) * bs*bs*bs;
+        //double vb = ( (i+1)*(i+1)*(i+1) - i*i*i) * bs*bs*bs;
+        double vb = (1+(1+i)*bs)*(1+(1+i)*bs)*(1+(1+i)*bs) - (1+i*bs)*(1+i*bs)*(1+i*bs) ; 
         Nid = (4./3.)*pi*vb*rhob;
 		pc[i] /= N*Nid*Nsamp; 
 	}	
