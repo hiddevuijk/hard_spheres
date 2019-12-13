@@ -13,7 +13,7 @@ public:
     // Yukawa potiential    
     double U( double  r) { 
             if( r < rco ) {
-                return -A*exp( -alpha*(r-rhs) )/r; 
+                return -A*exp( -alpha*(r-2*rhs) )/r; 
             } else {
                 return 0;
             }
