@@ -73,7 +73,7 @@ void System::mc_move_verlet()
     }
 
     if( !overlap ) {
-        if( rudist01() < std::exp( -deltaU ) ) {
+        if( deltaU < 0 ) { 
             particles[i].r = new_position;
 
             // apply periodic boundary conditions
@@ -85,9 +85,20 @@ void System::mc_move_verlet()
             if( dist > max_diff ) {
                 update_verlet_list();
             }
-        } 
-    }
+        } else if( rudist01() < std::exp( -deltaU ) ) {
+            particles[i].r = new_position;
 
+            // apply periodic boundary conditions
+            //particles[i].r.pbc(L);
+            Nacc += 1;
+
+            // check if the Verlet list needs to be updated
+            double dist = xyz::dist_pbc( particles[i].r, particles_before_update[i].r, L);
+            if( dist > max_diff ) {
+                update_verlet_list();
+            }
+        }
+   } 
 }
 
 System::System(int seed, unsigned int N, double L, Potential potential, double d, double rv)
