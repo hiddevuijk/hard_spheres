@@ -22,7 +22,7 @@ public:
 	const boost::uniform_real<double> udist01;
     // random int [0,N]  
     const boost::random::uniform_int_distribution<int> u_int_dist;
-
+    
 	int seed;
 	boost::mt19937 rng;		
 	boost::variate_generator<boost::mt19937&,
@@ -32,7 +32,7 @@ public:
 
     // initialize on a fcc lattice
     void init_random();
-   
+
     // attemt to move a particle
     void mc_move();
     void mc_move_verlet();
