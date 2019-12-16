@@ -1,17 +1,17 @@
-T           = 2000
-T_init      = 1000
+T           = 10000
+T_init      = 10000
 T_sample    = 100
 Tmc         = 1000
-print_every = 100
+print_every = 1000
 
 seed    = 123456789
-N       = 2000
-L       = 18.3252
-d       = 0.35
+N       = 1000
+L       = 10.77217345016
+d       = 0.05
 
 rhs     = 0.5
 rc      = 3.
-A       = 0.85
+A       = 1.111
 alpha   = 1.8
 
 rv  = 6.

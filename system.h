@@ -30,8 +30,9 @@ public:
 	boost::variate_generator<boost::mt19937&,
 		boost::uniform_real<double> > rudist01;
 
-    // initialize on a fcc lattice
+    // initialize on a lattice
     void init_random();
+    void init_random_shift();
 
     // attemt to move a particle
     void mc_move();

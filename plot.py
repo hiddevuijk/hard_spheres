@@ -24,13 +24,18 @@ gr = np.loadtxt("gr.dat")
 r = gr[:,0] + 1
 g = gr[:,1]
 
-gr1 = np.loadtxt("sim.dat")
-r1 = gr1[:,0]
-g1 = gr1[:,1]
+gr = np.loadtxt("gr1.dat")
+r1 = gr[:,0] + 1
+g1 = gr[:,1]
 
-#plt.plot(r1,g1, color='blue', label="sim old")
-plt.plot(r,g-1, color='black')
-plt.axhline(0)
+
+gr = np.loadtxt("sim.dat")
+rsim = gr[:,0]
+gsim= gr[:,1]
+
+plt.plot(r1,g1, color='blue', label="square")
+plt.plot(r,g, color='black', label = "shift")
+plt.plot(rsim,gsim, color='red', label = "data")
 #plt.plot(rr,grr, color='red')
 
 

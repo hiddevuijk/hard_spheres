@@ -118,6 +118,7 @@ System::System(int seed, unsigned int N, double L, Potential potential, double d
 
     // initialize the particle on a square
     init_random();
+    //init_random_shift();
 
     // initialize Verlet list
     update_verlet_list();
@@ -180,7 +181,46 @@ void System::init_random()
     }
 
 }
+void System::init_random_shift()
+{
+	// node_pd: nodes per dim
+	int node_pd = ceil(pow(1.*N,1./3));
+	int Nnodes = node_pd*node_pd*node_pd;
+	double  node_dist = L/node_pd;
 
+	std::vector<XYZ> nodes(Nnodes);
+	int i=0;
+	for(int xi =0;xi<node_pd;++xi) {
+		for(int yi=0;yi<node_pd;++yi) {
+			for(int zi=0;zi<node_pd;++zi) {
+                if( zi%2 == 0 ) {
+                    nodes[i].x = xi*node_dist;
+                    nodes[i].y = yi*node_dist;
+                    nodes[i].z = zi*node_dist;
+                } else {
+                    nodes[i].x = (xi+0.5)*node_dist;
+                    nodes[i].y = (yi+0.5)*node_dist;
+                    nodes[i].z = zi*node_dist;
+                }
+				++i;
+			}
+		}
+	}
+    
+    // shuffle nodes
+    for(unsigned int i=0; i<N; ++i) {
+        int j = i + (int)( rudist01()*(N-i) );
+        XYZ temp = nodes[i];
+        nodes[i] = nodes[j];
+        nodes[j] = temp;
+    }
+	for(unsigned  int i=0;i<N; ++i) {
+        particles[i].r = nodes[i];
+        particles[i].index = i;
+        particles_before_update[i] = particles[i];
+    }
+
+}
 
 
 
