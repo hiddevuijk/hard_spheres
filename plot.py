@@ -33,9 +33,9 @@ gr = np.loadtxt("sim.dat")
 rsim = gr[:,0]
 gsim= gr[:,1]
 
-plt.plot(r1,g1, color='blue', label="square")
+#plt.plot(r1,g1, color='blue', label="square")
 plt.plot(r,g, color='black', label = "shift")
-plt.plot(rsim,gsim, color='red', label = "data")
+#plt.plot(rsim,gsim, color='red', label = "data")
 #plt.plot(rr,grr, color='red')
 
 

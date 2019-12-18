@@ -50,8 +50,8 @@ int main()
         }
 
         for(int tmc=0; tmc<Tmc; ++tmc) {
-            //system.mc_move();
-            system.mc_move_verlet();
+            system.mc_move();
+            //system.mc_move_verlet();
         }
     }
     
@@ -64,8 +64,8 @@ int main()
         }
 
         for(int tmc=0; tmc<Tmc; ++tmc) {
-            //system.mc_move();
-            system.mc_move_verlet();
+            system.mc_move();
+            //system.mc_move_verlet();
         }
 
         if( t%T_sample == 0)
