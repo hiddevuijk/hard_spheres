@@ -7,16 +7,12 @@ class Potential {
 public:
     Potential(double A, double alpha,  double rhs, double rco)
         : A(A), alpha(alpha), rhs(rhs), dhs(2*rhs), dhs_sq(4*rhs*rhs),
-          rhs_sq(rhs*rhs), rco(rco)
-		{
-			Urco = -A*exp(-alpha*(rco - dhs) )/rco;
-		}
+          rhs_sq(rhs*rhs), rco(rco) {}
 
 
     // Yukawa potiential    
     double U( double  r) { 
             if( r < rco ) {
-				//return -Urco - A*exp( - alpha*(r-dhs) ) /r;
                 return -A*exp( -alpha*(r-dhs) )/r; 
             } else {
                 return 0;
@@ -35,7 +31,6 @@ public:
 
     double A, alpha;
     double rhs,dhs, dhs_sq, rhs_sq, rco;
-	double Urco;
 };
 
 
