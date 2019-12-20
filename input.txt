@@ -1,19 +1,19 @@
-T           = 1000
+T           = 100000
 T_init      = 1000
-T_sample    = 100
-Tmc         = 1000
-print_every = 100
+T_sample    = 1
+Tmc         = 250
+print_every = 1000
 
 seed    = 123456789
-N       = 1000
-L       =  14.620088691064328
-d       =  0.35
+N       = 250
+L       =  13.572
+d       =  2.
 
 rhs     = 0.5
-rc      = 3.
-A       = 0.8
+rc      = 2.5
+A       = 0.66666
 alpha   = 1.8
 
 rv  = 7.
 
-Nbin    = 500
+Nbin    = 1000
